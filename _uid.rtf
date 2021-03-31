@@ -1,0 +1,336 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset204 Courier New;}{\f1\fnil\fcharset0 Courier New;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl240\slmult1\qj\f0\fs22\lang1049\par
+\par
+\f1\lang1033\par
+\b\i\fs48 _uid\b0\i0  \i\fs32 v2.8\i0\fs22\par
+\par
+\b __________________________________________________________________\par
+\b0\f0\lang1049\par
+\b\f1\fs26\lang1033 OVERVIEW\b0\f0\fs22\lang1049\par
+\f1\lang1033\par
+\fs18\tab uid is the machine generated short unique string that are mostly used as the pointers.\par
+\tab this library provides features for generating uids\par
+\par
+\par
+\par
+\par
+UID structure\par
+\par
+\tab to generate an uid user should setup uid-generator first.\par
+\par
+\tab this is done by _uidset() function:\par
+\par
+\tab\tab charset = \par
+\par
+\tab\tab _uidset( \i ptr\i0 , \i prefix\i0 , \i suffix\i0 , \i charset\i0 [, \i charset\i0 [, \i charset\i0 [, \i charset\i0  ]]] )\par
+\par
+\par
+\par
+\fs16\tab example:\par
+\par
+\tab\tab\b\i cs\b0\i0  = \b\i "01"\i0\par
+\b0\par
+\tab\tab\b\i uidgenptr\b0\i0  = \b _uidset( \i ""\i0 , \i "<"\i0 , \i ">"\i0 , \i cs\i0 , \i cs\i0 , \i cs\i0 , \i cs\i0  )\b0\par
+\par
+\tab\tab # independent uid-generator\par
+\tab\tab #    ptr == ""\par
+\tab\tab #    prefix: "<"\par
+\tab\tab #    suffix: ">"\par
+\tab\tab #    charset: "01"\par
+\tab\tab #    charsetwidth: 4 characters\par
+\par
+\tab\tab # now start getting an uids from this uid-generator:\par
+\par
+\tab\tab do \{ print ++i ":\\t" \b _getuid( \i uidgenptr\i0  )\b0  "'" \} while ( 1 )\par
+\par
+\tab output:\par
+\par
+\tab\tab 1:\tab <0000>\par
+\tab\tab 2:\tab <0001>\par
+\tab\tab 3:\tab <0010>\par
+\tab\tab 4:\tab <0011>\par
+\tab\tab 5:\tab <0100>\par
+\tab\tab 6:\tab <0101>\par
+\tab\tab 7:\tab <0110>\par
+\tab\tab 8:\tab <0111>\par
+\tab\tab 9:\tab <1000>\par
+\tab\tab 10:\tab <1001>\par
+\tab\tab 11:\tab <1010>\par
+\tab\tab 12:\tab <1011>\par
+\tab\tab 13:\tab <1100>\par
+\tab\tab 14:\tab <1101>\par
+\tab\tab 15:\tab <1110>\par
+\tab\tab 16:\tab <1111>\par
+\par
+\tab\tab fatal: out of uids\par
+\fs18\par
+\par
+\par
+\par
+\par
+\tab\tab the first parameter `ptr: '""' - is the uid-generator pointer string. it's may be any \tab\tab string including another uids\par
+\par
+\tab\tab second parameter `prefix \par
+\par
+\tab each the uid's structure is showing belowuid is containing three parts: prefix string, generated string and an suffix string uid contains \par
+\par
+ containing the \b _uid\b0  module is .....\par
+\par
+\tab please see common \b\i uid\b0\i0 -explanations at the end of this document.\par
+\par
+\b\tab\par
+\par
+\b0\tab the uid code is an short unique string used in gawk as the data pointers\par
+\par
+\tab uid-code containing the following structure:\par
+\par
+\tab\tab PREFIX UID SUFFIX\b\par
+\fs22\par
+__________________________________________________________________\b0\f0\lang1049\par
+\par
+\b\f1\fs26\lang1033 HOW TO USE\par
+\b0\fs22\par
+\fs18\tab just @include "_uid.mod" at any point in your gawk project\fs22\par
+\par
+\b __________________________________________________________________\par
+\par
+\fs26 _uidset\b0 ( \i ptr\i0 , \i prefix\i0 , \i suffix\i0 , \i cs0\i0 ,\i cs1\i0 ,\i cs2\i0 ,\i cs3\i0  )\fs22\par
+\f0\lang1049\par
+\f1\fs18\lang1033\tab setup independent \b uid\b0 -generator with it's own character set\par
+\fs22\par
+\fs16\tab\tab example:\par
+\par
+\tab\tab\tab p = "a"\par
+\par
+\tab\tab\tab cs = "AB"\par
+\par
+\tab\tab\tab _uidset( p, "<", ">", cs, cs, cs )\par
+\par
+\tab\tab\tab i = 0\par
+\par
+\tab\tab\tab while ( 1 )\par
+\par
+\tab\tab\tab\tab print ++i ": " _getuid( p )\par
+\fs20\par
+\tab\tab\tab we're setting up uid-generator addressing by `p, to generate 3 \tab\tab\tab\tab characters width machine words using two characters: 'A' and 'B'. the \tab\tab\tab uid will be prefixed by the character '<' and suffixed by the \tab\tab\tab\tab charater '>'.\par
+\tab\tab\tab\par
+\tab\tab\tab now we're getting uids from the uid-generator until the fatal \tab\tab\tab\tab exception "out of uids" will be performed:\par
+\par
+\tab\tab output:\par
+\par
+\tab\tab\tab 0:\tab <AAA>\par
+\tab\tab\tab 1:\tab <AAB>\par
+\tab\tab\tab 2:\tab <ABA>\par
+\tab\tab\tab 3:\tab <ABB>\par
+\tab\tab\tab 4:\tab <BAA>\par
+\tab\tab\tab 5:\tab <BAB>\par
+\tab\tab\tab 6:\tab <BBA>\par
+\tab\tab\tab 7:\tab <BBB>\par
+\tab\par
+\tab\tab\tab out of uids\par
+\par
+\b\fs22\tab\b0 uid-generator may be initialized with the 1-4 character's width of the \tab machine generated part of the uid.\par
+\par
+\tab it's incredible fast and requires moderate amount of memory\b\par
+__________________________________________________________________\par
+\par
+\fs26 _getuid\b0 ( p )\fs22\par
+\f0\lang1049\par
+\f1\lang1033\tab generates and returns new \b\i uid\b0\i0  by \b\i uid\b0\i0 -generator\par
+\par
+\fs20\tab\tab example:\par
+\par
+\tab\tab\tab ?\par
+\par
+\tab\tab output:\par
+\par
+\tab\tab\tab ?\par
+\par
+\fs22\tab if the\f0\lang1049  \f1\lang1033 specified \b\i uid\b0\i0\f0\lang1049 -\f1\lang1033 generator has exhausted its resource of generating \tab\b\i uid\b0\i0 s, then a fatal error will occur.\par
+\b __________________________________________________________________\par
+\par
+\fs26 _uidcnt\b0 ( \i ptr\i0 , \i prefix\i0 , \i suffix\i0 , \i cntptr\i0  )\fs22\par
+\par
+\tab configure \i linked\i0  \b\i uid\b0\i0 -generator that is using character set and character \tab set counters from \i another\i0  \b\i uid\b0\i0 -generator.\par
+\par
+\tab the \b\i uid\b0\i0 s generated by the \b\i uid\b0\i0 -generator configured in this mode will have \tab exact the same ... but with it's own \i prefix\i0  and \i suffix\i0  strings\par
+\par
+\par
+\par
+\tab WARNING! the \i another\i0  \b\i uid\b0\i0 -generator must be already defined.\par
+\par
+\fs20\tab\tab example:\par
+\par
+\tab\tab\tab ?\par
+\par
+\tab\tab output:\par
+\par
+\tab\tab\tab ?\par
+\par
+\b\fs22 __________________________________________________________________\par
+\par
+\fs26 _uidchr\b0 ( \i ptr\i0 , \i prefix\i0 , \i suffix\i0 , \i charset_ptr\i0  )\fs22\par
+\f0\lang1049\par
+\f1\lang1033\tab configure independent _uid-generator  based on the character set of \tab another uid-generator\par
+\par
+\fs20\tab\tab example:\par
+\par
+\tab\tab\tab ?\par
+\par
+\tab\tab output:\par
+\par
+\tab\tab\tab ?\par
+\par
+\b\fs22 __________________________________________________________________\par
+\par
+\fs26 _isuidgen\b0 ( \i ptr\i0  )\fs22\par
+\f0\lang1049\par
+\f1\lang1033\tab ?\par
+\par
+\fs20\tab\tab example:\par
+\par
+\tab\tab\tab ?\par
+\par
+\tab\tab output:\par
+\par
+\tab\tab\tab ?\par
+\par
+\b\fs22 __________________________________________________________________\b0\f0\lang1049\par
+\f1\lang1033\par
+\b\fs26 UID\par
+\b0\fs22\par
+\tab the uid is the machine generated short string that is mostly used as an \tab pointers. \par
+\par
+\f0\lang1049\tab\tab - \f1\lang1033 the pointer's string should be as short as possible\par
+\par
+\tab\tab because of performance while indexing an array\par
+\par
+\tab\tab - the pointer's string should never have a chance to randomly match \tab\tab with data. in other words: the uid generated and used as the pointer \tab\tab should be recognized easy and fast if located in raw data\par
+\par
+\tab\tab - pointer should have contain  basic information about the class of \tab\tab the object\par
+\par
+i recommend the following uid-generated configuration for an base class (""):\par
+\par
+cs = "[\\xC0-\\xF6]"\par
+\par
+_uidset( "", "\\x7F\\x00", "\\x89\\x00", cs,cs,cs,cs )\par
+\par
+\par
+\par
+\par
+\fs20\par
+\b\fs22 __________________________________________________________________\par
+\par
+\i\fs26 uid\b0\i0 -generator\b\fs22\par
+\par
+\b0\tab uid-generator is the complex data set that implements \par
+\par
+\par
+\tab an access to uid-generator passed through the pointer\par
+\par
+\par
+\tab an uid-string is the result of the two \par
+\par
+\tab\tab the character set and the counters that is reaching character set by \tab\tab extracting characters from it\par
+\par
+\b __________________________________________________________________\par
+\b0\par
+\b\i\fs26 uid\b0\i0 -generator structure\fs22\par
+\par
+\tab each uid-generator have four base fields that is \i prefix\i0  and \i suffix\i0  \tab strings and two pointers that is addressing counters of character set and \tab character set data.\par
+\par
+
+\pard\li720\sl240\slmult1\qj\tab\b _UIDPFX\b0 [ \i ptr\i0  ]\tab\tab - \b\i uid\b0\i0 -generator \i prefix\i0  string\par
+\par
+\tab\b _UIDSFX\b0 [ \i ptr\i0  ]\tab\tab - \b\i uid\b0\i0 -generator \i suffix\i0  string\par
+\par
+\tab\b _UIDCPTR\b0 [ \i ptr\i0  ]\tab\tab - \i cntptr\i0 : pointer to counters\par
+\par
+\tab\tab counters:\par
+\par
+\tab\tab\tab\b _UIDCNTL\b0 [ \i cntptr\i0  ]\tab - last generated uid's low part\par
+\par
+\tab\tab\tab\b _UIDCNTH\b0 [ \i cntptr\i0  ]\tab - last generated uid's high part \par
+\par
+\tab\b _UIDCSPTR\b0 [ \i ptr\i0  ]\tab\tab - \i csptr\i0 : pointer to character sets\par
+\par
+\tab\tab character sets:\tab\par
+\par
+\tab\tab\tab\b _UIDCSL\b0 [ \i csptr\i0  ]\tab - array: contains low character set\par
+\par
+\tab\tab\tab\b _UIDCSH\b0 [ \i csptr\i0  ]\tab - array: contains high character set\par
+\par
+\tab\tab\tab\par
+\tab\tab\tab the character set array contains list of elements:\par
+\par
+\tab\tab\tab\tab\tab ...[ first ]\tab = second\par
+\tab\tab\tab\tab\tab    [ second ]\tab = third\par
+\tab\tab\tab\tab\tab    [ third ]\tab = ""\par
+\par
+\tab\tab\tab\tab\tab    [ "" ]\tab\tab = first\tab - first in list\par
+\tab\tab\tab\tab\tab    [ "\\x7F" ]\tab = third\tab - last in list\par
+\par
+\tab\tab\tab\tab the character typically low and high character set\par
+
+\pard\sl240\slmult1\qj\par
+\fs18\tab\tab * please note that ptr is the \b\i uid\b0\i0 -generator pointer\fs22\par
+\par
+\tab if we're looking at the \b\i uid\b0\i0 -generator structure described above then we \tab will see that different \b\i uid\b0\i0 -generators may have the same counters and/or \tab character set. this opens feature about configuring \i linked \b uid\b0\i0 -generators \tab that is may have common character set or common character set counters \tab ( see \b _uidset\b0 , \b _uidcnt\b0  and \b _uidchr\b0  )\par
+\par
+\par
+\par
+\b __________________________________________________________________\b0\f0\lang1049\par
+\par
+\b\f1\fs26\lang1033 ABOUT\b0\f0\fs22\lang1049\par
+\par
+\par
+\f1\lang1033\tab 26 Nov 2020 - 31 Mar 2021\par
+\par
+\tab by digi_cs \f0\lang1049\par
+\f1\lang1033\par
+\b __________________________________________________________________\b0\par
+\par
+\f0\lang1049\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+}
+ 
