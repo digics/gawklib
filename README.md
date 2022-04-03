@@ -11,7 +11,7 @@ it's have five functions for joining an array: simple join, join with separator,
 the join functions have high performance and ready for working with a large amount of data
 
 in addition, the library includes
-other really useful functions for working with an arrays: for it's definiyion and for a data movements
+other really useful functions for working with an arrays: for it's definition and for a data movements
 
 also library includes functions for printing(dumping) a contents of an array and content of the two arrays
 
