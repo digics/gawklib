@@ -1,0 +1,1595 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset204 Courier New;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\fi720\li720\ri720\sl240\slmult1\f0\fs18\lang1033\par
+\b\i\fs48 _arr\b0\i0  \i\fs32 v3.0 ( Apr 2022 by digi_cs )\i0\par
+\fs28 ________________________________________________\par
+\b\fs32 OVERVIEW\b0\fs28\par
+\fs20\par
+\par
+\tab library \b _arr\b0  (array.inc) contains function set (28) for basic\par
+\tab working with an arrays\par
+\par
+\fs22\tab - high performance\fs20\par
+\par
+\tab\tab join: advanced AIR2-core\par
+\par
+\tab\tab for details see \b AIR\b0  \par
+\par
+\fs22\tab - maximum join string length: up to 900MB\fs20\par
+\par
+\fs22\tab - flexible parameter's interface:\fs20\par
+\par
+\tab\tab - direct/omit/relative parameter's form\par
+\par
+\tab\tab - supporting two types of arrays\par
+\par
+\tab\tab - allows user to create it's own new array functions(2)\par
+\par
+\fs22\tab - reduced library source size\fs20\par
+\par
+\tab\tab - requiring limitation is:\par
+\par
+\tab\tab\tab 100 - 128 KB (this release: 75KB)\par
+\par
+\fs22\tab - well tested\par
+\fs20\par
+\fs22\tab - self3mod\par
+\fs20\par
+\tab\tab - self modification feature:\par
+\par
+\tab\tab\tab - allows user to create it's own new array\par
+\tab\tab\tab functions(2)\par
+\par
+\tab see \b PERFORMANCE\b0  for details\par
+\par
+\fs28 _______________________________________________\par
+\par
+\b\fs32 EXAMPLES\b0\fs28\par
+\fs20\par
+\par
+\tab the best examples is in library source file itself.\par
+\par
+\tab see array.inc and check function's \b _dumpa\b0 () code. there are lot\par
+\tab of array => string conversions\par
+\par
+\tab for detailed description of each functions provided see \b FUNCSET\b0\fs18\par
+\fs20\par
+\par
+\fs24\tab ARRAY JOINING\fs20\par
+\par
+\par
+\fs18\tab\tab   B[ 0 ] = "b0"\par
+A[ 1 ] = "a1"\tab ; B[ 1 ] = "b1"\par
+A[ 2 ] = "a2"\tab ; B[ 2 ] = "b2"\par
+A[ 3 ] = "a3"\tab ; B[ 3 ] = "b3"\par
+\par
+\par
+\b _reta\b0 ( A )\tab\tab  == "a1a2a3"\tab\tab\i\fs16 # A[1] A[2] A[3]\i0\fs18\par
+\par
+\b _retad\b0 ( A, -1 )\tab  == "a3a2a1"\tab\tab\i\fs16 # A[3] A[2] A[1]\i0\fs18\par
+\par
+\b _retas\b0 ( A, \i "-"\i0  )\tab  == "a1-a2-a3"\tab\i\fs16 # A[1] "-" A[2] "-" A[3]\par
+\i0\fs18\par
+\b _retab\b0 ( A, B )\tab  == "b0a1b1a2b2a3b3" \i\fs16 # B[0] A[1]B[1] A[2]B[2] A[3]B[3]\par
+\par
+\b\i0\fs18 _retabs\b0 ( A, B, \i "-"\i0  ) == "a1b1-a2b2-a3b3" \i\fs16 # A[1]B[1]"-"A[2]B[2]"-"A[3]B[3]\i0\fs18\par
+\par
+\fs20\par
+\tab - joining elements of an array:\fs18\par
+\par
+\par
+\fs16\tab\tab split( "abc", A, "" )\par
+\par
+\tab\tab\b _reta\b0 ( A ) == "abc"\par
+\fs20\par
+\par
+\fs18\tab - \fs20 joining elements of an array in reversed order:\fs18\par
+\par
+\fs16\tab\tab split( "abc", A, "" )\par
+\par
+\tab\tab\b _retad\b0 ( A, -1 ) == "cba"\par
+\fs20\par
+\par
+\tab - joining elements of an array using separator:\par
+\fs18\par
+\fs16\tab\tab split( "abc", A, "" )\par
+\par
+\tab\tab\b _retas\b0 ( A, "-" ) == "a-b-c"\par
+\fs20\par
+\par
+\tab - joining elements of the two arrays:\fs18\par
+\par
+\fs16\tab\tab patsplit( t, A, /regexp/, B )\par
+\par
+\tab\tab\b _retab\b0 ( A, B ) == t\par
+\fs20\par
+\par
+\tab - typical patsplit, processing loop and join back:\fs18\par
+\par
+\fs16\tab\tab\i t == source string\i0\par
+\par
+\tab\tab if ( patsplit( t, T, /\i regexp\i0 /, D ) ) \{\par
+\par
+\tab\tab\tab for ( t = 1; t in T; t++ )\par
+\par
+\tab\tab\tab\tab T[ t ] = ... \i processing\i0  T[ t ]\par
+\par
+\tab\tab\tab t = \b _retab\b0 ( T, D ) \}\par
+\par
+\tab\tab\i t == processed source string\i0\par
+\fs20\par
+\par
+\tab - genearte an data by pieces and gets the result:\par
+\par
+\fs16\tab\tab "" in D\par
+\par
+\tab\tab while ...\par
+\par
+\tab\tab\tab ...D[ length( D ) ] = ... peace of result\par
+\par
+\tab\tab d = \b _reta\b0 ( D )\par
+\b\fs20\par
+\par
+\b0\fs24 ARRAY DEFINITIONS\fs20\par
+\par
+\par
+\tab\tab - providing an undefined arrays A[ "A" ] and A[ "B" ]:\par
+\tab\par
+\fs16\tab\tab\tab # delete A\par
+\tab\tab\tab\par
+\tab\tab\tab patsplit( ..., A[ \b _defa\b0 ( "A", A ) ], ..., A[ \b _defa\b0 ( "B", A ) ] ) \par
+\fs18\par
+\fs20\par
+\tab\tab - deleting an element of an array from the gawk\par
+\tab\tab expression mode:\par
+\par
+\tab\tab\tab\i\fs16 expression\i0  ... \b _delete\b0 ( "PROCINFO", SYMTAB ) ... \i expression\i0  \par
+\fs20\par
+\par
+\tab - clearing global ARRAY through the SYMTAB:\par
+\par
+\fs16\tab\tab\b _dela\b0 ( SYMTAB[ "ARRAY" ] )\fs20\par
+\par
+\tab\tab due to SYMTAB delete protection user isn't able to\par
+\tab\tab performing:\par
+\par
+\tab\tab\fs16\tab delete SYMTAB[ "ARRAY" ]\par
+\fs20\par
+\tab\tab even if it's could be possible the \b _dela\b0 () isn't deletes\par
+\tab\tab specified index but just clearing it while delete\par
+\tab\tab statement will remove index from an array\par
+\par
+\par
+\fs24 DATA MOVEMENTS\fs20\par
+\par
+\par
+\tab - copy array to array:\par
+\par
+\tab\tab\b _movaa\b0 ( \i D\i0 , \i S\i0  )\par
+\par
+\par
+\tab - get the name of an array:\par
+\par
+\fs18\tab\tab\b _nama\b0 ( \i PROCINFO\i0  ) == "PROCINFO"\par
+\fs20\par
+\par
+\tab - dumping an array:\par
+\par
+\tab\tab\tab split( "a0b1c", A, /[0-9]/, B )\par
+\par
+\tab\tab\tab print \b _dumpa\b0 ( \i A\i0  )\par
+\par
+\tab\tab outputs:\par
+\par
+\par
+\par
+\par
+\par
+\tab - dumping two arrays:\par
+\par
+\tab\tab\tab split( "a0b1c", A, /[0-9]/, B )\par
+\par
+\tab\tab\tab print \b _dumpab\b0 ( \i A\i0 , \i B\i0  )\par
+\par
+\tab\tab outputs:\par
+\par
+\par
+\fs24 OTHER\fs20\par
+\par
+\par
+\tab\tab _chrln\par
+\par
+\tab\tab _width\par
+\par
+\tab\tab _xoffset\par
+\par
+\tab\tab _addxy\par
+\par
+\tab\tab _dump\par
+\par
+\tab _abs\par
+\tab\tab\par
+\fs28 _______________________________________________\par
+\b\par
+\fs32 FUNCSET\b0\fs28\par
+\fs20\par
+\par
+library contains five very important functions for array joining\par
+making awk programming much easier and effective. the programming\par
+design is using an elements of linear programming solutions with the\par
+primal priority to fastly operates with a large amount of indexes and\par
+the big data sizes.\par
+\par
+please note that all parameters for a functions implemented below\par
+have the same common parameter determination system allowing to omit\par
+or providing its in a relative form.\par
+\par
+see \b PARAMETERs DETERMINATION\b0  for details.\fs22\par
+\fs20\par
+the programming environment include special definition called as\par
+\tab\i hids\i0 :\par
+\par
+\b\fs18\tab\tab BEGIN_\par
+\tab\tab END_\par
+\tab\tab STEP_\par
+\tab\tab NAMA_\par
+\tab\tab NAMASTRICT_\par
+\b0\fs20\par
+\tab\i hid\i0  is the global variable with an unique strong value\par
+\tab assigned. the typical usage of hids is as special indexes in an \par
+\tab arrays or as the special values meaning something more than \par
+\tab just a value.\par
+\par
+\tab see \b HIDs\b0  for details\par
+\par
+\fs24\tab\b _reta\b0 ( \i A\i0 , \i a\i0 , \i q, x, Sep\i0 , \i b\i0 , \i y\i0   )\tab\b\par
+\par
+\tab _retas\b0 ( \i A\i0 , \i Sep\i0 , \i a\i0 , \i q, x\i0 , \i b\i0 , \i y\i0  )\tab\fs22\par
+\par
+\b\fs24\tab _retad\b0 ( \i A\i0 , \i x\i0 , \i a\i0 , \i q, Sep\i0 , \i b\i0 , \i y\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab\i A\i0\tab - source array A\par
+\tab\tab\i a\i0\tab - start index a\par
+\tab\tab\i q\i0\tab - number of elements to join\par
+\tab\tab\i x\i0\tab - index step a\par
+\tab\tab\i Sep\i0\tab - separator\par
+\tab\tab\tab   source array B:\par
+\par
+\tab\tab\tab\tab\i b\i0\tab - start index b\par
+\tab\tab\tab\tab\i y\i0\tab - index step b\par
+\par
+\tab\tab joins `\i q\i0  of an elements of an array `\i A\i0  with numeric\par
+\tab\tab indexes starting from `\i a\i0  with using index step `\i x\i0  and \par
+\tab\tab\tab with the separator `Sep:\par
+\par
+\tab\tab note: all three functions do the same job and differs \par
+\tab\tab\tab from each other only by parameter's order.\fs22\par
+\fs20\par
+\tab\tab note: if `\i Sep\i0  is an array then function call will be \tab\par
+\tab\tab\tab redirected to \b _retab\b0 ( \i A\i0 , \i Sep\i0 , \i a\i0 , \i q\i0 , \i b\i0 , \i x\i0 , \i y\i0  )\par
+\par
+\tab\tab example 1:\par
+\par
+\fs18\tab\tab\tab join 3 elements starting from index 2 without an \tab\par
+\tab\tab\tab\tab separator and using index step +1:\par
+\par
+\tab\tab\tab\b _reta\b0 ( \i A\i0 , \i 2\i0 , \i 3\i0 ,\i  1\i0  )\par
+\par
+\tab\tab\tab\b _retad\b0 ( \i A\i0 ,\i  1\i0 , \i 2\i0 , \i 3\i0  )\par
+\par
+\tab\tab\tab\b _retas\b0 ( \i A\i0 ,\i  ""\i0 , \i 2\i0 , \i 3\i0 ,\i  1\i0  )\par
+\par
+\fs20\tab\tab\tab will cause to return like:\fs18\par
+\par
+\tab\tab\tab\tab return \i A\i0 [\i 2\i0 ] \i A\i0 [\i 3\i0 ] \i A\i0 [\i 4\i0 ]\par
+\fs20\par
+\tab\tab example 2:\par
+\par
+\fs18\tab\tab\tab join 3 elements starting from index 2 without an \tab\par
+\tab\tab\tab separator and using index step -1 (reversed order):\par
+\par
+\par
+\tab\tab\tab\b _retad\b0 ( \i A\i0 ,\i  -1\i0 , \i 2\i0 , \i 3\i0  )\par
+\par
+\tab\tab\tab\b _reta\b0 ( \i A\i0 , \i 2\i0 , \i 3\i0 ,\i  -1\i0  )\par
+\par
+\tab\tab\tab\b _retas\b0 ( \i A\i0 ,\i  ""\i0 , \i 2\i0 , \i 3\i0 ,\i  -1\i0  )\par
+\par
+\fs20\tab\tab\tab will cause to return like:\par
+\fs18\par
+\tab\tab\tab\tab return \i A\i0 [\i 2\i0 ] \i A\i0 [\i 1\i0 ] \i A\i0 [\i 0\i0 ]\par
+\fs20\par
+\tab\tab example 3:\par
+\par
+\fs18\tab\tab\tab join 3 elements starting from index 2 with separator "-" \par
+\tab\tab\tab\tab and using index step -1:\par
+\par
+\tab\tab\tab\b _retas\b0 ( \i A\i0 , \i "-"\i0 , \i 2\i0 , \i 3\i0 , \i -1\i0  )\fs22\par
+\fs18\par
+\tab\tab\tab\b _reta\b0 ( \i A\i0 , \i 2\i0 , \i 3\i0 ,\i  -1\i0 , \i "-"\i0  )\par
+\par
+\tab\tab\tab\b _retad\b0 ( \i A\i0 ,\i  -1\i0 , \i 2\i0 , \i 3\i0 , \i "-"\i0  )\par
+\par
+\fs20\tab\tab\tab will cause to return like:\par
+\fs18\par
+\tab\tab\tab\tab return \i A\i0 [\i 2\i0 ] \i "-"\i0  \i A\i0 [\i 1\i0 ] \i "-"\i0  \i A\i0 [\i 0\i0 ]\par
+\fs20\par
+\par
+\fs24\tab\b _retab\b0 ( \i A\i0 , \i B\i0 , \i a\i0 , \i q\i0 , \i b\i0 , \i x\i0 , \i y\i0 , \i Sep\i0  )\fs22\par
+\fs24\par
+\tab\b _retabs\b0 ( \i A\i0 , \i B\i0 , \i Sep\i0 , \i a\i0 , \i q\i0 , \i b\i0 , \i x\i0 , \i y\i0  )\fs22\par
+\fs20\par
+\tab\tab\i A\i0\tab - source array A\par
+\tab\tab\i B\i0\tab - source array B\par
+\tab\tab\i a\i0\tab - start index a\par
+\tab\tab\i q\i0\tab - number of elements to join\par
+\tab\tab\i b\i0\tab - start index b\par
+\tab\tab\i x\i0\tab - index step a\par
+\tab\tab\i y\i0\tab - index step b\par
+\tab\tab\i Sep\i0\tab - separator\par
+\par
+\par
+\tab\tab joins `\i q\i0  of element-pairs of an arrays `\i A\i0  and `\i B\i0  with \par
+\tab\tab numeric indexes starting from `\i a\i0 /`\i b\i0  and using index step \par
+\tab\tab in `\i x\i0 /`\i y\i0  for array `\i A\i0 /`\i B\i0  appropriately and with the \tab\par
+\tab\tab separator `\i Sep\i0 :\par
+\par
+\par
+\tab\tab note: both functions do the same job and differs from \par
+\tab\tab\tab each other only by parameter's order\fs22\par
+\fs20\par
+\tab\tab note: \b _retab\b0 (): if `\i Sep\i0  isn't equals to empty string ( != \par
+\tab\tab "" ) then functon call will be redirected to\par
+\tab\tab\b _retabs\b0 ( \i A\i0 , \i B\i0 , \i Sep\i0 , \i a\i0 , \i q\i0 , \i b\i0 , \i x\i0 , \i y\i0  )\par
+\par
+\tab\tab note: \b _retabs\b0 (): if `\i Sep\i0  equals to empty string ( != "" ) \par
+\tab\tab then functon call will be redirected to\par
+\b\tab\tab _retab\b0 ( \i A\i0 , \i B\i0 , \i a\i0 , \i q\i0 , \i b\i0 , \i x\i0 , \i y\i0  )\par
+\par
+\tab\tab example 1:\par
+\par
+\fs18\tab\tab\tab\b _retab\b0 ( \i A\i0 , \i B\i0 , \i 1\i0 , \i 3\i0 , \i 5\i0 , \i 1\i0 , \i -1\i0  )\par
+\par
+\fs20\tab\tab\tab will cause to return like:\fs18\par
+\par
+\tab\tab\tab\tab return \i A\i0 [\i 1\i0 ] \i B\i0 [\i 5\i0 ] \i A\i0 [\i 2\i0 ] \i B\i0 [\i 4\i0 ] \i A\i0 [\i 3\i0 ] \i B\i0 [\i 3\i0 ]\par
+\fs20\par
+\tab\tab example 2:\par
+\par
+\fs18\tab\tab\tab\b _retabs\b0 ( \i A\i0 , \i B\i0 , \i "-"\i0 , \i 1\i0 , \i 3\i0 , \i 5\i0 , \i 1\i0 , \i -1\i0  )\par
+\par
+\fs20\tab\tab\tab will cause to return like:\fs18\par
+\par
+\tab\tab\tab\tab return \i A\i0 [\i 1\i0 ] \i B\i0 [\i 5\i0 ] \i "-" A\i0 [\i 2\i0 ] \i B\i0 [\i 4\i0 ] \i "-" A\i0 [\i 3\i0 ] \i B\i0 [\i 3\i0 ]\par
+\fs20\par
+\tab\tab\b _retab\b0 () was designed as the opposite of the built-ins \par
+\tab\tab split() and patsplit() functions that are called with the \par
+\tab\tab four parameters.\par
+\par
+\tab\tab\par
+\tab\tab here is the typical usage example:\par
+\par
+\tab\tab example:\par
+\par
+\fs18\tab\tab\tab\i # typical patsplit, processing loop and joinback\i0\par
+\par
+\tab\tab\tab if ( patsplit( \i t\i0 , \i T\i0 , /.../, \i D\i0  ) ) \{\par
+\par
+\tab\tab\tab\tab for ( \i t\i0  = 1; \i t\i0  in \i T\i0 ; \i t\i0 ++ )\par
+\par
+\tab\tab\tab\tab\tab\i T\i0 [ \i t\i0  ] = ... \i T\i0 [ \i t\i0  ] ...\tab # processing\par
+\par
+\tab\tab\tab\tab\i t\i0  = \b _retab\b0 ( \i T\i0 , \i D\i0  ) \}\par
+\par
+\tab\tab\tab ...\par
+\fs20\par
+\fs18\par
+\b\fs24\tab _defa\b0 ( \i i, A\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab defines `\i A\i0 [ `\i i\i0  ] as an clear array.\par
+\par
+\tab\tab if `\i A\i0 [ `\i i\i0  ] is already defined as an array then \b _defa\b0 () \par
+\tab\tab\tab always clear it.\par
+\par
+\tab\tab returns `\i i\i0 .\par
+\par
+\tab\tab example:\fs18\par
+\par
+\tab\tab # delete \i T\i0\par
+\tab\tab patsplit( ..., \i T\i0 [ \b _defa\b0 ( "\i A\i0 ", \i T\i0  ) ], ..., \i T\i0 [ \b _defa\b0 ( "\i B\i0 ", \i T\i0  ) ]\par
+\fs20\par
+\par
+\b\fs24\tab _leta\b0 ( \i i, A\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab defines `\i A\i0 [ `\i i\i0  ] as an array.\par
+\par
+\tab\tab if `\i A\i0 [ `\i i\i0  ] is already defined as an array then nothing \par
+\tab\tab\tab is doing.\par
+\par
+\tab\tab returns `\i i\i0 .\par
+\fs22\par
+\fs20\tab\tab example:\par
+\fs18\par
+\tab\tab\tab\tab -\fs22\par
+\fs20\par
+\par
+\b\fs24\tab _dela\b0 ( \i A\i0 , v )\tab\fs22\par
+\fs20\par
+\tab\tab clear array `\i A\i0  from inside.\par
+\par
+\tab\tab there is difference between using statement:\par
+\par
+\tab\tab\tab delete `\i A\i0 [ `\i i\i0  ]\par
+\par
+\tab\tab and a function call:\par
+\par
+\tab\tab\tab\b _dela\b0 ( `\i A\i0 [ `\i i\i0  ] )\par
+\par
+\tab\tab the last one do not deleting index `\i i\i0  from array `\i A\i0  while \par
+\tab\tab\tab delete statement will remove index `\i i\i0  from array `\i A\i0 .\par
+\par
+\tab\tab this may be useful in case if for example array `\i A\i0  is the \par
+\tab\tab\tab SYMTAB array that is stricted for elements deleting.\par
+\par
+\tab\tab returns `\i v.\i0\par
+\par
+\tab\tab example:\par
+\fs18\par
+\tab\tab\tab\tab -\fs22\par
+\fs20\par
+\par
+\b\fs24\tab _delete\b0 ( \i i, A\i0  )\tab\fs22\par
+\fs20\par
+\par
+\tab\tab delete index `\i i\i0  from array `\i A.\i0\par
+\par
+\tab\tab allows user to perform deleteing index from an array \tab\par
+\tab\tab without using statement.\par
+\par
+\tab\tab also in gawk version before 5.x this function allows to \par
+\tab\tab bypass  deleting index protection from arrays \tab\tab\par
+\tab\tab SYMTAB/FUNCTAB. for gawk 5.x it is no longer actual cause \par
+\tab\tab now SYMTAB have the dynamic protection (but it's not for\par
+\tab\tab all kind of operations ;) )\par
+\par
+\tab\tab returns `\i i.\i0\par
+\par
+\tab\tab example:\par
+\fs18\par
+\tab\tab\tab -\fs22\par
+\fs20\par
+\par
+
+\pard\fi720\li1440\ri720\sl240\slmult1\b\fs24 _iav\b0 ( \i i\i0 , \i A\i0 , \i Val\i0  )\fs18\par
+\fs20\par
+\par
+\tab if index `\i i\i0  is exist in `\i A\i0  then returns `\i A\i0 [ `\i i\i0  ]\par
+\par
+\tab otherwise returns `\i Val\i0\par
+\par
+\tab if returned value `\i A\i0 [ `\i i\i0  ] or `\i Val \i0 is an array then \tab\par
+\tab\tab returns \b _reta\b0 ( `\i A\i0 [ `\i i\i0  ] / `\i Val\i0  )\par
+\par
+\tab example:\par
+\fs18\par
+\tab\tab -\fs22\par
+\fs20\par
+\par
+\b\fs24 _iavd\b0 ( \i i\i0 , \i A\i0 , \i Val\i0  )\fs18\par
+\fs20\par
+\par
+\tab same as \b _iav\b0 () but in case if `\i i\i0  in `\i A\i0  then post-deleting \par
+\tab\tab `\i A\i0 [ `\i i\i0  ] will be \tab performed\par
+\par
+\tab example:\par
+\fs18\par
+\tab\tab -\fs22\par
+
+\pard\fi720\li720\ri720\sl240\slmult1\fs20\par
+\par
+\b\fs24\tab _movaa\b0 ( \i D, S\i0  )\tab\fs22\par
+\fs20\par
+\par
+\tab\tab copies all indexes of array `\i S\i0  to array `\i D.\i0\par
+\par
+\tab\tab destination indexes will be always deleted if its exist \par
+\tab\tab\tab in `\i D.\i0\tab\tab\par
+\par
+\tab\tab returns \i null \i0 (\i unassigned\i0 ).\par
+\par
+\tab\tab example:\par
+\fs18\par
+\tab\tab\tab -\fs22\par
+\fs20\par
+\par
+\b\fs24\tab _moviav\b0 ( \i i, A\i0 , \i Val\i0  )\tab\fs22\par
+\fs20\par
+\par
+\tab\tab writes `\i Val\i0  to `\i A\i0 [ `\i i\i0  ].\par
+\par
+\tab\tab if `\i Val\i0  is \i untyped\i0  then `\i A\i0 [ `\i i\i0  ] will be deleted.\par
+\par
+\tab\tab if `\i Val\i0  and `\i A\i0 [ `\i i\i0  ] are both an arrays then `\i A\i0 [ `\i i\i0  ] \tab\tab\tab will be deleted first\f1\lang1049  \f0\lang1033 and then recreated.\par
+\par
+\tab\tab returns `\i i.\i0\par
+\par
+\tab\tab example:\par
+\par
+\fs18\tab\tab\tab -\fs22\par
+\fs20\par
+\par
+\b\fs24\tab _movaia\b0 ( \i D, i\i0 , \i S\i0  )\tab\fs22\par
+\fs20\par
+\par
+\tab\tab copies state of `\i S\i0 [ `\i i\i0  ] to `\i D\i0 [ `\i i\i0  ].\par
+\par
+\tab\tab if `\i i\i0  is not exist in `\i S\i0  then `\i D\i0 [ `\i i\i0  ] will be deleted.\par
+\par
+\tab\tab if `\i S\i0 [ `\i i\i0  ] and `\i D\i0 [ `\i i\i0  ] are both an arrays then `\i D\i0 [ `\i i\i0  ] \tab\tab\tab will be deleted first and then recreated.\par
+\par
+\tab\tab returns `\i i.\i0\par
+\par
+\tab\tab example:\par
+\par
+\fs18\tab\tab\tab -\par
+\fs20\par
+\par
+\b\fs24\tab _moviaia\b0 ( \i di, D\i0 , \i si\i0 , \i S\i0  )\tab\fs22\par
+\fs20\par
+\par
+\tab\tab copies state of `\i S\i0 [ `\i si\i0  ] to `\i D\i0 [ `\i di\i0  ].\par
+\par
+\tab\tab if `\i si\i0  is not exist in `\i S\i0  then `\i D\i0 [ `\i di\i0  ] will be deleted.\par
+\par
+\tab\tab if `\i S\i0 [ `\i si\i0  ] and `\i D\i0 [ `\i di\i0  ] are both an arrays then \tab\tab\tab\tab `\i D\i0 [ `\i di\i0  ] will be deleted first and then recreated.\par
+\par
+\tab\tab returns `\i di.\i0\par
+\tab\par
+\tab\tab example:\par
+\par
+\fs18\tab\tab\tab -\fs22\par
+\fs20\par
+\par
+\b\fs24\tab _sama\b0 ( \i A, B\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab function returns true (1) in case if a given arrays `\i A\i0  \tab\tab\tab and `\i B\i0  are the same array.\par
+\fs22\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\tab\tab -\par
+\fs20\par
+\par
+\fs24\tab\b _nama\b0 ( \i T\i0 , \i P\i0 , \i prefix\i0 , \i X\i0 , \i mode\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab `\i T\i0\tab\tab - target array\par
+\tab\tab `\i P\i0\tab\tab - parent array\par
+\tab\tab `\i prefix\i0\tab - prefix string\par
+\tab\tab `\i X\i0\tab\tab - exclude array\par
+\tab\tab `\i mode\i0\tab\tab - nested-flag (if true then nested array \tab\tab\tab\tab\tab\tab seeking enable)\par
+\par
+\tab\par
+\tab\tab low effective. primarily ntresting in debug reasons.\par
+\par
+\tab\tab\b _nama\b0 () is exotic function that's returns the symbolic \tab\tab\tab name of the given target array `T - in case if it's \tab\tab\tab\tab global or nested of the global.\par
+\par
+\tab\tab the returned symbolic name is relative from the given \tab\tab\tab array `P - that its if omitted then SYMTAB will be used.\par
+\par
+\tab\tab optional array `\i X\i0  may implement exclusions for the name \tab\tab\tab determination process: the indexes thats present in `\i X\i0  \tab\tab\tab will not been available for name determination process.\par
+\par
+\tab\tab the returned symbolic name - if it's detected - will be \tab\tab\tab prefixed by the `\i prefix\i0 .\par
+\par
+\tab\tab the `\i mode\i0  - if true - enables recursive scan of the \tab\tab\tab\tab nested arrays.\par
+\par
+\tab\tab if `\i mode\i0  is equals to 0 then nested arrays scaning will \tab\tab\tab be disabled.\par
+\par
+\tab\tab if `\i mode\i0  is omitted ( =="" ) then state of globvar \tab\tab\tab\tab\b _NAMA_NESTEDARR\b0  will be used.\par
+\par
+\tab\tab example:\par
+\par
+\fs18\tab\tab\tab print _nama( PROCINFO )\par
+\fs20\par
+\tab\tab outputs:\par
+\par
+\fs18\tab\tab\tab PROCINFO\par
+\fs20\par
+\par
+\tab\tab example 2:\par
+\par
+\fs18\tab\tab\tab HOTEL[ "" ]\par
+\par
+\tab\tab\tab abc( HOTEL )\tab\tab\tab\tab\par
+\par
+\tab\tab\tab func\tab abc( A ) \{\par
+\par
+\tab\tab\tab\tab print _nama( A ) "'" \}\par
+\par
+\fs20\tab\tab outputs:\fs18\par
+\par
+\tab\tab\tab HOTEL'\par
+\fs20\par
+\par
+\fs24\tab\b _dumpa\b0 ( \i A\i0 , \i title\i0 , \i X\i0  )\tab\fs22\par
+\fs20\par
+\fs24\tab\b _dumpa\b0 ( \i A\i0 , \i X\i0 , \i title\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab returns text that is the dump of an array `\i A\i0 .\par
+\par
+\tab\tab `\i title\i0  will preceeding returned dump as like array's `\i Y\i0  \tab\tab\tab name in example below.\par
+\par
+\tab\tab if `\i title\i0  is \i untyped\i0  then array's `\i A\i0  name autodetection will be performed \tab\tab by calling \b _nama\b0 ( A ). the returned value will then be used as the array's \tab\tab `\i A\i0  dump title (in example below - it's "Y" ).\par
+\par
+\tab\tab\tab example:\par
+\par
+\fs14\tab\tab\tab\tab # the following gawk code fills an array `Y by a values and defines subarray structure:\fs18\par
+\par
+\tab\tab\tab\fs14 t = "line0\\x0Aline1\\x0Aline2\\x0Aline3"\tab\tab # multistring\par
+\tab\tab\par
+\fs16\tab\tab\fs14 Y[ NONE ]\tab\tab = NONE\tab\tab\tab # hid\par
+\tab\tab Y[ BEGIN_ ]\tab\tab = 6\par
+\tab\tab Y[ END_ ]\tab\tab = 1\par
+\tab\tab Y[ STEP_ ] = -1\par
+\tab\tab Y[ -1 ] = "-1"\tab\tab\tab\tab\tab # numeric\tab\tab\tab\tab\par
+\tab\tab Y[ 0 ] = 0\par
+\tab\tab   Y[ 1 ] = 1\par
+\tab\tab    Y[ 2 ] = 2\par
+\tab\tab    Y[ 3 ] = 3\par
+\tab\tab    Y[ 4 ] = 4\par
+\tab\tab    Y[ 5 ] = 5\par
+\tab\tab  Y[ 6 ] = 6\par
+\tab\tab Y[ 7 ] = 7\par
+\par
+\tab\tab Y[ -1, "start" ]\tab\tab = 368\par
+\tab\tab Y[ -1, "length" ]\tab\tab = 16\par
+\tab\tab Y[ 1, "start" ]\tab\tab = 384\par
+\tab\tab Y[ 1, "length" ]\tab\tab = 5\par
+\tab\tab Y[ 4, "start" ]\tab\tab = 389\par
+\tab\tab Y[ 4, "length" ]\tab\tab = 1050\par
+\tab\tab\par
+\tab\tab Y[ "STRING" ] = "string"\tab\tab\tab\tab # string\par
+\tab\tab Y[ "STRING0" ] = ""\par
+\tab\tab Y[ "STRING1" ] = t\par
+\tab\tab Y[ "STRING2" ] = "string "\par
+\tab\tab Y[ "STRING3" ] = "\\x7F123456789ABCDEF\\x00123456789abcdef\\x1Eziuw34854398%E%%764e7987e98t"\par
+\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY0" ][ "NUMBER" ]\tab = 3.14\tab\tab\tab # number\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY0" ][ "REGEXP" ]\tab = @/^.*$/\tab\tab # regexp\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY0" ][ "UNASSIGNED" ]\tab\tab\tab\tab # unassigned\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY0" ][ "STRNUM" ] = T[ split( "2", T, "" ) ]\tab # strnum\par
+\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY2" ][ "." ] = "."\tab\tab # ARRAY, ARRAY0 are not empty arrays\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY2" ][ ".." ] = ".."\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY2" ][ "..." ] = "..."\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY2" ][ "...." ] = "...."\par
+\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY1" ][ "" ]\tab\tab\tab # ARRAY1 is an empty array\par
+\tab\tab delete Y[ "ARRAY" ][ "ARRAY1" ][ "" ]\par
+\par
+\tab\tab Y[ "ARRAY" ][ "ARRAY0" ][ "..." ] = "..."\par
+\par
+\tab\tab "" in X\par
+\par
+\tab\tab t = \b _dumpa\b0 ( Y, X )\par
+\fs20\par
+\fs18\tab\tab\tab output:\par
+\par
+\fs14 Y[ $NONE ] = $NONE\par
+ [ $BEGIN_ ] = 6\par
+ [ $END_ ] = 1\par
+ [ $STEP_ ] = -1\par
+\par
+ [ -1.length ] = 16\par
+ [ -1.start ] = 368\par
+ [ 1.length ] = 5\par
+ [ 1.start ] = 384\par
+ [ 4.length ] = 1050\par
+ [ 4.start ] = 389\par
+ [ ARRAY ][ ARRAY0 ][ ... ] = ...\par
+                    [ NUMBER ] = 3.14\par
+                    [ REGEXP ] = @/^.*$/\par
+                    [ STRNUM ] = 2\par
+                    [ UNASSIGNED ] = -\par
+          [ ARRAY1 ]\par
+          [ ARRAY2 ][ . ] = .\par
+                    [ .. ] = ..\par
+                    [ ... ] = ...\par
+                    [ .... ] = ....\par
+ [ STRING ] = string\par
+ [ STRING0 ] = '\par
+ [ STRING1 ] = line0\par
+               line1\par
+               line2\par
+               line3\par
+ [ STRING2 ] = string '\par
+ [ STRING3 ] = 7F 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46   .123456789ABCDEF\par
+               00 31 32 33 34 35 36 37 38 39 61 62 63 64 65 66   .123456789abcdef\par
+               1E 7A 69 75 77 33 34 38 35 34 33 39 38 25 45 25   .ziuw34854398%E%\par
+               25 37 36 34 65 37 39 38 37 65 39 38 74            %764e7987e98t   '\par
+\par
+ [ -1 ] = -1\par
+ [ 0 ] = 0\par
+  [ 1 ] = 1\par
+    [ 2 ] = 2\par
+    [ 3 ] = 3\par
+    [ 4 ] = 4\par
+    [ 5 ] = 5\par
+   [ 6 ] = 6\par
+ [ 7 ] = 7\par
+\fs18\par
+\fs20\par
+\tab\tab optional array `X may contains indexes that are will be skipped while dump \tab\tab is generated and will not a part of its.\par
+\par
+\tab\tab\b _dumpa\b0 () groups indexes in to the four categories and generating dump of an \tab\tab array in the following order:\par
+\par
+\tab\fs18\tab\tab - hid indexes ( see HIDs )\par
+\par
+\tab\tab\tab - string indexes (all that is not \i hid\i0 , numeric or pointer)\par
+\par
+\tab\tab\tab - numeric indexes \par
+\par
+\tab\tab\tab - pointer's indexes ( index in _CLASSPTR )\par
+\fs20\par
+\par
+\tab\tab BEGIN_/END_ arrays have special form in a dump at numeric indexes part:\par
+\par
+\tab\tab\tab - the index that is pointed by \b BEGIN_\b0  (in example below: 6 ) is \tab\tab\tab\tab having double extra spaces inserted before the index field\par
+\par
+\tab\tab\tab - the index that is pointed by the \b END_\b0  (in example below: 1) is \tab\tab\tab\tab having single extra space inserted before index field\par
+\par
+\tab\tab\tab - an indexes that are located between \b BEGIN_\b0  and \b END_\b0  haves triple \tab\tab\tab extra spaces inserted before index field\par
+\par
+\tab\tab\tab\tab example:\par
+\par
+\fs18  [ -1 ] = -1\par
+ [ 0 ] = 0\par
+  [ 1 ] = 1\tab\tab\tab <- BEGIN_\par
+    [ 3 ] = 3\par
+    [ 4 ] = 4\par
+    [ 5 ] = 5\par
+   [ 6 ] = 6\tab\tab\tab <- END_\par
+ [ 7 ] = 7\par
+\fs20\par
+\par
+\tab\tab\b _dumpa\b0 () output form is controlled by the following global var set:\par
+\par
+\par
+\b _DUMPA_DATA_MAXMULTILN\b0\par
+\par
+\tab default: 5\par
+\par
+\tab maximum data height\par
+\par
+\par
+\b _DUMPA_INDEX_MAXMULTILN\b0\par
+\par
+\tab default: 5\par
+\par
+\tab maximum index height\par
+\par
+\par
+\b _DUMPA_DUMPCHR\par
+\b0\par
+\tab default: @/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F-\\xFF]/\tab\par
+\par
+\tab contains regexp\par
+\par
+\tab if data string is match with this regexp then data string will \tab be hex-dumped instead of text form\par
+\par
+\par
+\b _DUMPA_DUMPWIDTH\b0\par
+\par
+\tab default: 16\par
+\par
+\tab width of string dump (in bytes)\par
+\par
+\par
+\b _DUMPA_DUMPASC\b0\par
+\par
+\tab default: 1 (enabled)\par
+\par
+\tab if true then hex-dump will include asc-characters column\par
+\par
+\par
+\b _DUMPA_DUMPASCDOTCHR\b0\par
+\par
+\tab default: @/[\\x00-\\x1F\\x7F]/\par
+\par
+\tab contains regexp\par
+\par
+\tab characters that are matchs with this regexp will be replaced in \tab asc-characters column by the "."-dot character\par
+\par
+\par
+\b _DUMPA_MAXINDEX\b0\par
+\par
+\tab default: -1\par
+\par
+\tab not implemented\par
+\par
+\tab contains number of indexes that if exceeds will leads to dump \tab index reducing \par
+\par
+\tab note: if equals to -1 then disabled\par
+\par
+\par
+\b _DUMPA_STARTLENSPEC\b0\par
+\par
+\tab default: 0 (disabled)\par
+\par
+\tab if true then enables special form of the elements output with \tab indexes like:\par
+\par
+\fs18\tab\tab 1, "start"\par
+\tab\tab 1, "length"\par
+\fs20\tab\par
+\tab note that special form is requiring appropriate numeric index \tab existance in an array. in case of above the numeric index 1 is \tab required to be exist in an array\par
+\par
+\par
+\fs24\tab\b _dumpab\b0 ( \i A\i0 , \i B\i0 , \i titleA\i0 , \i titleB\i0 , \i X\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab returns text that is the dump of the two arrays `\i A\i0  and `\i B.\i0\par
+\par
+\tab\tab if `\i titleAB\i0  is \i untyped\i0  then array's `\i AB\i0  name autodetection will be \tab\tab\tab performed by calling \b _nama\b0 ( `\i AB\i0  ). the returned value will then be used as \tab\tab the array's `\i AB\i0  dump title.\par
+\par
+\tab\tab optional array `\i X\i0  may contains indexes that are will be skipped while dump \tab\tab is generated and will not a part of its.\par
+\par
+\tab\tab\tab example:\par
+\par
+\fs18\tab\tab\tab\tab BEGIN\{\par
+\par
+\tab\tab\tab\tab\tab t = "a1b2c3d4e5f6"\par
+\par
+\tab\tab\tab\tab\tab patsplit( t, \i A\i0 , /[0-9]+/, \i B\i0  )\par
+\par
+\tab\tab\tab\tab\tab print \b _dumpab\b0 ( \i A\i0 , \i B\i0  )\par
+\par
+\tab\tab\tab\tab\tab\}\par
+\par
+\fs20\tab\tab\tab outputs:\par
+\par
+\fs18\tab\tab\tab\tab              B[ 0 ] = a\par
+\tab\tab\tab\tab A[ 1 ] = 1    [ 1 ] = b\par
+\tab\tab\tab\tab  [ 2 ] = 2    [ 2 ] = c\par
+\tab\tab\tab\tab  [ 3 ] = 3    [ 3 ] = d\par
+\tab\tab\tab\tab  [ 4 ] = 4    [ 4 ] = e\par
+\tab\tab\tab\tab  [ 5 ] = 5    [ 5 ] = f\par
+\tab\tab\tab\tab  [ 6 ] = 6    [ 6 ] = '\par
+\fs20\par
+\par
+\b\fs24\tab _dump\b0 ( \i str\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab returns hexadecimal dump of the `\i str\i0 .\par
+\par
+\tab\tab note that the following globvars are controlling output of the \b _dump\b0 ():\par
+\par
+\b\fs18\tab\tab\tab _DUMPA_DUMPWIDTH\par
+\tab\tab\tab _DUMPA_DUMPASC\b0\par
+\b\tab\tab\tab _DUMPA_DUMPASCDOTCHR\b0\par
+\fs20\par
+\tab\tab see \b _dumpa\b0 () for details\par
+\par
+\tab\tab example:\par
+\par
+\fs18\tab\tab\tab\tab -\par
+\fs20\par
+\par
+\b\fs24\tab _abs\b0 ( \i p\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab returns absolute value of `\i p.\i0\par
+\par
+\tab\tab it is strange sightly that such a function is not part of built-ins \tab\tab\tab functions.\par
+\fs22\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\fs20\par
+\par
+\b\fs24\tab _xoffset\b0 ( \i str\i0 , \i offset\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab performs horizontal offset of the text (multistring) `\i str\i0  and returns the \tab\tab result.\par
+\par
+\tab\tab the `\i offset\i0  determinates number of characters for offseting.\par
+\par
+\tab\tab if `\i offset\i0  is more than zero ( > 0 ) then \b _xoffset\b0 () performs right offset \tab\tab by inserting specified number of spaces at the begining of each line.\par
+\fs22\par
+\fs20\tab\tab if `\i offset\i0  is negative ( < 0 ) then \b _xoffset\b0 () performs left offset \tab\tab\tab by removing specified number of spaces at the begining of each line.\par
+\fs22\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\tab\tab\tab -\par
+\fs20\par
+\par
+\b\fs24\tab _chrln\b0 ( \i qnt\i0 , \i str\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab returns string of the length specified by `\i qnt\i0  that is containing \tab\tab\tab repeatative `\i str.\i0\par
+\fs22\par
+\tab\tab if `\i str\i0  is equals to empty string ( == "" ) then single space \tab\tab\tab character will be used as the `\i str.\i0\par
+\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\tab\tab\tab -\par
+\fs20\par
+\par
+\b\fs24\tab _width\b0 ( \i str\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab returns maximal length of the sorce lines in multistring `\i str\i0\par
+\fs22\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\tab\tab\tab -\par
+\fs20\par
+\par
+\b\fs24\tab _addab\b0 ( \i a\i0 , \i b\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab adding text `\i b\i0  at the right side of text `\i a.\i0\par
+\fs22\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\tab\tab\tab a = "a1\\x0A"\par
+\tab\tab\tab\tab     "a22\\x0A"\par
+\tab\tab\tab\tab     "a333"\par
+\par
+\tab\tab\tab\tab b = "b1\\x0A"\par
+\tab\tab\tab\tab     "b22\\x0A"\par
+\tab\tab\tab\tab     "b333\\x0A"\par
+\tab\tab\tab\tab     "b4444"\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab print _addab( a, b )\par
+\par
+\tab\fs20\tab\tab outputs:\fs18\par
+\par
+\tab\tab\tab\tab a1     b1\par
+\tab\tab\tab\tab a22    b22\par
+\tab\tab\tab\tab a333   b333\par
+\tab\tab\tab\tab        b4444\par
+\par
+\fs20\par
+\b\fs24\tab _reta_startlen\b0 ( \i A\i0 , \i a\i0 , \i q\i0 , \i x\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab function that is setting up number of globvars depending from a given \tab\tab\tab parameters\par
+\par
+\tab\tab see \b PARAMETERs DETERMINATION \b0 for details.\par
+\fs22\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\tab\tab\tab -\par
+\fs20\par
+\par
+\b\fs24\tab _self3mod\b0 ( \i srcfile\i0 , \i dstfile\i0 , \i backupfile\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab if `\i\fs24 dstfile\i0  == "" then `\i dstfile\i0  = `\i srcfile\i0\fs20\par
+\fs22\par
+\fs20\tab\tab if `\i\fs24 backupfile\i0  == "" then `\i backupfile = \i0 `\i srcfile\i0  ".prev"\fs20\par
+\fs22\par
+\tab\tab performs detection: is library needs to modify it's own code due to\par
+\tab\tab\tab\tab\tab\tab some changes in the library source:\par
+\par
+\tab\tab\tab\tab\tab\tab\tab `\i srcfile\i0  != `\i backupfile\i0\par
+\par
+\tab\tab\tab\tab\tab\tab if so then performs _self3mod pass and \tab\tab\tab\tab\tab\tab\tab generate new library's source code\fs20\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab and then exit to shell will be performed with \tab\tab\tab\tab\tab\tab result code: -1 - due to requiring restarting gawk \tab\tab\tab\tab\tab script \par
+\par
+\par
+\b\fs24\tab _hid\b0 ( \i hidname\i0  )\tab\fs22\par
+\fs20\par
+\tab\tab register new or exist hud giving it's name (that is the name of the global \tab\tab var that's have assigned special value that is hid itself.\par
+\par
+\tab\tab see \b HIDs\b0  for details\par
+\fs22\par
+\fs20\tab\tab example:\fs18\par
+\par
+\tab\tab\tab\tab BEGIN_\tab\tab = \b _hid\b0 ( "BEGIN_" )\par
+\fs20\par
+\par
+\tab\tab\tab but it was originally like:\par
+\par
+\fs18\tab\tab\tab\tab\b _hid\b0 ( "BEGIN_" )\par
+\fs20\par
+\tab\tab\tab\tab but because of writing to SYMTAB arbitrary elements is stricted\par
+\tab\tab\tab\tab we need made assign\par
+\par
+\tab\tab if required `\i hidname\i0  of hid is already registered then its existance value \tab\tab will be returned\par
+\par
+\par
+\fs28 ____________________________________________________________\par
+\par
+\b\fs32 PARAMETERs DETERMINATION\b0\fs22\par
+\fs20\par
+\par
+\f1\lang1049\tab all array-joining functions use a common parameter de\f0\lang1033 termination\f1\lang1049  system located \f0\lang1033\tab\f1\lang1049 in\f0\lang1033  \f1\lang1049 the \b _reta_startlen\b0\f0\lang1033 ()\f1\lang1049  function. the operation of this function is described \f0\lang1033\tab\f1\lang1049 below.\par
+\par
+\f0\lang1033\tab if user wants to creates an it's own special array functions then are may use \tab\b _reta_startlen\b0 () function to pre-determinate a parameters.\par
+\par
+\tab the following is the detailed explanation of the how \b _reta_startlen\b0 () works.\par
+\par
+\tab see also \b ARRAY TYPES\b0\par
+\par
+\tab the parameters determination process starts by getting information about a given \tab array(s) and storing its in the special set of the global vars:\par
+\par
+\tab\tab\b _reta_tp\b0\tab\tab - \i type\i0 : array type ( C/B )\par
+\par
+\tab\tab\tab\tab\tab\tab C\tab - COMMON type array\par
+\par
+\tab\tab\tab\tab\tab\tab B\tab - BEGIN/END type array\par
+\par
+\tab\tab\tab\tab\tab\tab see \b ARRAY TYPES\b0\par
+\par
+\tab\tab\b _reta_first\b0\tab\tab - \i first\i0 : index of the first index in a given array\par
+\par
+\tab\tab\b _reta_last\b0\tab\tab - \i last\i0 : index of the last index in a given array\par
+\par
+\tab\tab\b _reta_ax\b0\tab\tab - \i arrstep\i0 : array index step\par
+\par
+\f1\lang1049\tab\f0\lang1033 the \i arrstep\i0  - array index step - may be determinated by `\i AB\i0 [ \b STEP_\b0  ] if it's \tab\tab exist in a given array:\par
+\par
+\tab\tab - if \b STEP_\b0  is exist in a given array then it's contains exact array index \tab\tab step:\par
+\par
+\fs18\tab\tab\tab\i arrstep\i0  = `\i AB\i0 [ \b STEP_\b0  ]\fs20\par
+\par
+\tab\tab - otherwise \i arrstep\i0  is equals to 1*\par
+\par
+\tab\tab\tab * there is some exception described in \b ARRAY TYPES\b0\par
+\par
+\tab\tab do not confuse the \i arrstep\i0  and the index step parameter provided when \tab\tab\tab calling an array-join functions.\par
+\par
+\tab\tab although if when calling such a function the index step parameter is \tab\tab\tab omitted ( == "" ) then its will be equals to the array index step.\par
+\par
+\tab\tab the \i arrstep\i0  is actually index step that is using while write-to-array \tab\tab\tab operations performed.\par
+\par
+\tab\tab the \i idxstep\i0  - index step parameter that's will be consider further - \tab\tab\tab provided to an array joining functions is using it's while read-from-array \tab\tab operations performed.\par
+\par
+\tab\tab see below for a details\par
+\par
+\par
+\tab the \i first\i0  index of an array is may contained at `\i AB\i0 [ \b BEGIN_\b0  ] if it's exist in an \tab array:\par
+\par
+\tab\tab - if \b BEGIN_\b0  is exist in a given array then its contains first array's \tab\tab\tab index:\par
+\par
+\fs18\tab\tab\tab\i first\i0  = `\i AB\i0 [ \b BEGIN_\b0  ]\fs20\par
+\par
+\tab\tab - otherwise first index of an array will be calculated as the follows:\par
+\par
+\tab\fs18\tab\tab\i first\i0  = ! ( 0 in `\i AB\i0  )\fs20\par
+\fs18\par
+\tab\tab\tab that is: the \i first\i0  index in a given array  will be 0 if the index 0 \tab\tab\tab\tab is existed in a given array. otherwise it's will be equal to 1\par
+\fs20\par
+\par
+\tab the \i last\i0  index of an array may be determinated by `\i AB\i0 [ \b END_\b0  ] if it's existed in \tab an array that is the pointer beyond the last element of an array\par
+\tab ( == \i last\i0  + \i arrstep\i0  ):\par
+\par
+\tab\tab - if \b END_\b0  is exist in a given array then last index of a given array will \tab\tab be calculated as follows:\par
+\par
+\tab\fs18\tab\tab\i last\i0  = `\i AB\i0 [ \b END_\b0  ] - \i arrstep\i0\fs20\par
+\par
+\tab\tab - otherwise last index of an array will be calculated as the follows:\par
+\par
+\fs18\tab\tab\tab\i last\i0  = \i first\i0  + ( \b _reta_length\b0 ( `\i AB\i0  ) - 1 ) * \i arrstep\i0\par
+\fs20\par
+\tab\tab\tab note: that _reta_length\f1\lang1049  \f0\lang1033 returns number of indexes in a given array \tab\tab\tab regardless of the presence or absence of the following indexes inside \tab\tab\tab it:\par
+\par
+\b\fs18\tab\tab\tab\tab BEGIN_\par
+\tab\tab\tab\tab END_\par
+\tab\tab\tab\tab STEP_\par
+\b0\fs20\par
+\par
+\fs24 `\b\i x\b0\i0 /`\b\i y\b0\i0  \tab - \i idxstep\i0 : index step parameter for array `\b\i A\b0\i0 /`\b\i B\i0\fs26\par
+\fs20\par
+\b0\tab\b\par
+\b0\f1\lang1049\tab\f0\lang1033 next,the parameter determination system needs to know the `idxstep - index step \tab parameter while using it as the current index pointer modifier while joining an \tab elements\b\par
+\par
+\b0\tab note that index step value is determinated by the \b _reta_start\b0 () function that is \tab placing the results in the globvar \b _reta_x\b0\par
+\b\par
+\tab\b0 array v3 supports index step parameter that is adding to `\b\i a\b0\i0 /`\b\i b\b0\i0  after each read-\tab from-array operation is performed:\par
+\par
+\fs18\tab\tab ... \i A\i0 [\i a\i0 ]\i B\i0 [\i b\i0 ] \i A\i0 [\i a\i0 +=\i x\i0 ]\i B\i0 [\i b\i0 +=\i y\i0 ] ...\fs24\par
+\fs20\par
+\tab `\b\i xy\b0\i0  may be any number including negatives that allows to join array's elements in \tab forward or reversed order\par
+\par
+\tab if `\b\i xy\b0\i0  is omitted ( == "" )  then it's will be equals to default index step. the \tab default index step is always equals to 1 except in case if \b STEP_\b0  is exist in a \tab given array. if thus then default index step will be loaded from `\i AB\i0 [ \b STEP_\b0\i  \i0 ]. \par
+\tab\par
+\tab note: that there is another exception when default index step may be equals \tab to -1. see \b ARRAY TYPES\b0  for details.\b\par
+\b0\par
+\tab if `\b\i xy\b0\i0  is present ( != "" ) then its will be converted to a number:\par
+\par
+\fs18\tab\tab\b _reta_x\b0  = 0 + `\i xy\i0  \fs24\par
+\fs20\par
+\par
+\par
+\fs24 `\b\i a\b0\i0 /`\b\i b\b0\i0  \tab - start index parameter for array \i `\b A\b0 /`\b B\b0\i0\par
+\fs20\par
+\par
+\tab then parameters determination system is calculating the start index of the join \tab process.\par
+\par
+\tab `\b\i ab\b0\i0  determinates start index of the join process.\par
+\par
+\tab note that start index value is determinated by the \b _reta_start\b0 () function that is \tab placing the results in the globvar \b _reta_a\b0\par
+\par
+\tab `\b\i ab\b0\i0  may be omitted ( == "" ) and then it's will be targeted at the \i first\i0  or \i last\i0  \tab (depending from a given index step polarity) index of a given array:\par
+\par
+\tab\tab - if index step polarity is positive ( >= 0 ) then `\b\i ab\b0\i0  will be equals to \tab\tab the first array index (\b _reta_first\b0 )\par
+\par
+\tab\tab - if index step polarity is negative ( < 0 )  then `\b\i ab\b0\i0  will be equals to \tab\tab the last array index (\b _reta_last\b0 )\par
+\par
+\tab `\b\i ab\b0\i0  can also contain the leading character "^" or "$" followed by an optional \tab decimal number. in this case, it's the relative form of the start index. it is \tab calculated by skipping the specified number of indexes counted from the \i first\i0  or \tab\i last\i0  (depending on index step polarity) index of a given array:\par
+\par
+\tab\tab example 1:\par
+\par
+\fs18\tab\tab\i A\i0 [ 0 ] = a\tab\tab # $3 or ^0\par
+\tab\tab\i A\i0 [ 1 ] = b\tab\tab # $2 or ^1\par
+\tab\tab\i A\i0 [ 2 ] = c\tab\tab # $1 or ^2\par
+\tab\tab\i A\i0 [ 3 ] = d\tab\tab # $0 or ^3\par
+\par
+\tab\tab\b _reta\b0 ( \i A\i0 , \i "$2"\i0  )\tab == "bcd"\par
+\par
+\tab\tab\tab\b _retad\b0 ( \i A\i0 , -1, \i "^1"\i0  ) == "ba"\par
+\fs20\par
+\tab\tab example 2:\par
+\par
+\fs18\tab\tab\i A\i0 [ \b BEGIN_\b0  ] = -2\par
+\par
+\tab\tab\i A\i0 [ -2 ] = a\tab\tab # $5 or ^0\par
+\tab\tab\i A\i0 [ -1 ] = b\tab\tab # $4 or ^1\par
+\tab\tab\i A\i0 [  0 ] = c\tab\tab # $3 or ^2\par
+\tab\tab\i A\i0 [  1 ] = d\tab\tab # $2 or ^3\par
+\tab\tab\i A\i0 [  2 ] = e\tab\tab # $1 or ^4\par
+\tab\tab\i A\i0 [  3 ] = f\tab\tab # $0 or ^5\par
+\par
+\tab\tab\i A\i0 [ \b END_\b0  ] = 4\par
+\par
+\tab\tab\b _retad\b0 ( \i A\i0 , \i -1\i0 , \i "^2"\i0  )\tab == "cba"\par
+\fs20\par
+\tab in other cases `\b\i ab\b0\i0  is always interpreted as the exact start index of the join-\tab process:\par
+\par
+\fs18\tab\tab\b _reta\b0 ( \i A\i0 , \i 4\i0  )\par
+\par
+\tab\tab\b _reta\b0 ( \i A\i0 , \i -3\i0  )\par
+\par
+\tab\tab\b _reta\b0 ( \i A\i0 , \i 3.14159\i0  )\par
+\par
+\tab\tab\b _reta\b0 ( \i A\i0 , \i 0\i0  )\par
+\par
+\tab\tab\b _reta\b0 ( \i A\i0 , "+1" )\par
+\fs20\par
+\par
+\par
+\fs24 `\b\i q\b0\i0  \tab - quantity: numer of elements to return (index range)\fs26\par
+\fs20\par
+\par
+\tab finally parameters determination system calculates the number of elements to join \tab while joining process.\par
+\par
+\tab `\b\i q\b0\i0  may be present as an exact positive value (number or strnum)\par
+\par
+\tab\tab in this case number of returned elements will be equals to integer of\par
+\tab\tab `\b\i q\b0\i0 :\par
+\par
+\fs18\tab\tab\tab\i number\i0  = int( `\b\i q\b0\i0  )\fs20\par
+\par
+\tab `\b\i q\b0\i0  may be present as an negative value \par
+\par
+\tab\tab in this case its will be interpreted as: ... "return elements starting from \tab\tab determinated start index and until to last/first (depending on index \tab\tab\tab step polarity) element of a given array `\i A\i0 .\par
+\par
+\tab\tab\tab example:\par
+\par
+\fs18\tab\tab\i A\i0 [ 0 ]= a\par
+\tab\tab\i A\i0 [ 1 ]= b\par
+\tab\tab\i A\i0 [ 2 ]= c\par
+\tab\tab\i A\i0 [ 3 ]= d\par
+\par
+\tab\tab\b _reta\b0 ( A, 1, -1 ) == "bc"\par
+\par
+\tab\tab\b _reta\b0 ( A, 2, -1, -1 ) == "cb"\par
+\fs20\par
+\par
+\tab `\b\i q\b0\i0  may be omitted ( == "" ) in this case it's will be autodetected and will cover \tab array's indexes starting from determinated start index and until the last/first \tab (depending on index step polarity) index of a given array:\par
+\par
+\tab\tab if index step polarity is positive ( >= 0 ) then `\b q\b0  will be calculated for \tab\tab covering all elements starting from determinated start index until the last \tab\tab element of an array:\par
+\par
+\tab\tab\tab example:\par
+\par
+\fs18\tab\tab\i A\i0 [ 0 ]= a\par
+\tab\tab\i A\i0 [ 1 ]= b\par
+\tab\tab\i A\i0 [ 2 ]= c\par
+\tab\tab\i A\i0 [ 3 ]= d\par
+\par
+\tab\tab\b _reta\b0 ( A, 1, "", 1 ) == "bcd"\par
+\fs20\par
+\tab\tab if index step polarity is negative ( < 0 )  then `\b\i q\b0\i0  will be calculated for \tab\tab covering all elements starting from determinated start index until the \tab\tab\tab first element of an array:\par
+\par
+\tab\tab\tab example:\par
+\par
+\fs18\tab\tab\i A\i0 [ 0 ]= a\par
+\tab\tab\i A\i0 [ 1 ]= b\par
+\tab\tab\i A\i0 [ 2 ]= c\par
+\tab\tab\i A\i0 [ 3 ]= d\par
+\par
+\tab\tab\b _reta\b0 ( A, 2, "", -1 ) == "cba"\par
+\fs20\par
+\par
+\fs28 ____________________________________________________________\par
+\b\par
+\fs32 ARRAY TYPES\b0\fs22\par
+\fs20\par
+\par
+\b\fs24\tab\fs28 COMMON \b0 array\fs24\par
+\fs20\par
+\tab\tab an common array is the typical post- split/patsplit array:\par
+\par
+\tab\tab - common array indexes is starting from index 0 or 1\par
+\par
+\tab\tab - all numeric indexes is present sequentially\par
+\par
+\tab\tab - there is no other indexes in an array except sequential numeric\par
+\par
+\tab\tab\tab this is except index \b STEP_\b0  that's may be present in a common \tab\tab\tab array\par
+\par
+\tab\tab - the array index step is equals to: +1\par
+\par
+\par
+\b\fs28\tab BEGIN/END\b0 (\b BE\b0 )\b  \b0 array\fs22\par
+\fs20\par
+\tab\tab BE array is determinated by existance in an array index \b BEGIN_\b0  or/and \b END_\b0\par
+\par
+\tab\tab\tab - A[ \b BEGIN_\b0  ] contains the first index in an array\par
+\par
+\tab\tab\tab - A[ \b END_\b0  ] contains the beyond the last index of an array\par
+\par
+\tab\tab\tab\tab example:\par
+\par
+\tab\tab\tab\tab A[ \b BEGIN_\b0  ] = -2\par
+\tab\par
+\tab\tab\tab\tab A[ -2 ] = "a"\par
+\tab\tab\tab\tab A[ -1 ] = "b"\par
+\tab\tab\tab\tab A[ 0 ]  = "c"\par
+\tab\tab\tab\tab A[ 1 ]  = "d"\par
+\tab\tab\tab\tab A[ 2 ]  = "e"\par
+\tab\tab\tab\tab A[ 3 ]  = "f"\par
+\par
+\tab\tab\tab\tab A[ \b END_\b0  ] = 4\par
+\par
+\tab\tab\tab\tab\b _reta\b0 ( A ) == "abcdef"\par
+\par
+\tab\tab\tab if A[ \b BEGIN_\b0  ] == A[ \b END_\b0  ] then BE-array is empty\par
+\par
+\tab\tab\tab - A[ \b STEP_\b0  ] contains the array index step that's may be positive or \tab\tab\tab negative:\par
+\par
+\tab\tab\tab\tab example:\par
+\par
+\fs18\tab\tab\tab\tab A[ \b END_\b0  ] = -3\par
+\tab\par
+\tab\tab\tab\tab A[ -2 ] = "f"\par
+\tab\tab\tab\tab A[ -1 ] = "e"\par
+\tab\tab\tab\tab A[ 0 ]  = "d"\par
+\tab\tab\tab\tab A[ 1 ]  = "c"\par
+\tab\tab\tab\tab A[ 2 ]  = "b"\par
+\tab\tab\tab\tab A[ 3 ]  = "a"\par
+\par
+\tab\tab\tab\tab A[ \b BEGIN_\b0  ] = 3\par
+\tab\tab\tab\tab A[ \b STEP_\b0  ] = -1\par
+\par
+\tab\tab\tab\tab\b _reta\b0 ( A ) == "abcdef"\par
+\fs20\par
+\tab\tab\tab note that if \b STEP_\b0  is not exist in an array then array index \tab\tab\tab step will be equals to: +1. this is except note2\par
+\par
+\tab\tab\tab note2: if \b STEP_\b0  is not exist in an array \i AND\i0  both \b BEGIN_\b0  and \tab\tab\tab\b END_\b0  are exist in an array \i AND\i0  \b BEGIN_\b0  is more than \b END_\b0  then \tab\tab\tab array index step will be equals to: -1\par
+\par
+\tab\tab\tab example:\par
+\par
+\fs18\tab\tab\tab A[ \b END_\b0  ] = -3\par
+\tab\par
+\tab\tab\tab A[ -2 ] = "f"\par
+\tab\tab\tab A[ -1 ] = "e"\par
+\tab\tab\tab A[ 0 ]  = "d"\par
+\tab\tab\tab A[ 1 ]  = "c"\par
+\tab\tab\tab A[ 2 ]  = "b"\par
+\tab\tab\tab A[ 3 ]  = "a"\par
+\par
+\tab\tab\tab A[ \b BEGIN_\b0  ] = 3\par
+\par
+\tab\tab\tab\b _reta\b0 ( A ) == "abcdef"\par
+\fs20\par
+\tab\tab\tab - BE array may contains any number of the any indexes\par
+\par
+\fs28 ____________________________________________________________\par
+\par
+\b\fs32 SELF3MOD\b0\fs28\par
+\fs20\par
+\par
+\tab the library have self-modification feature allowing for user to rebuild library \tab source file using other constant values.\par
+\par
+\tab the constant values are placed in the gawk commentaries. depending from it's \tab values the library file source will be self-modificated.\par
+\par
+\tab this feature is disabled by default but user may activate it by uncommenting \tab _self3mod() function call at the BEGIN area of the library source file.\par
+\par
+\tab user also must provide filepath to the library source file as the parameter for \tab _self3mod() \par
+\par
+\tab user may easily implementing the simple repeatatives in the source file using \tab _self3mod feature\par
+\par
+\par
+\tab _self3mod commands are placed in the gawk commentaries with preceeding double \tab space characters:\par
+\par
+\tab\tab\tab ...  # x63\par
+\tab\tab\tab ...  # *63\par
+\par
+\tab if such combination is found in an source line then it's processed as follows:\par
+\par
+\tab\tab whole source line is splited by the separator that is the double space \tab\tab\tab characters\par
+\tab\par
+\tab\tab each part is the self3mod command's parameter 1, 2 and so on\par
+\par
+\tab\tab the last part is the self3mod itself\par
+\par
+\tab\tab note that parameters 3+ is always skipped\par
+\par
+\tab\tab then if last part is equals to:\par
+\par
+\tab\tab\tab ' x\i Number\i0 '\tab\tab - then this is the single line repeater command\par
+\par
+\tab\tab\tab or\par
+\par
+\tab\tab\tab ' *\i Number\i0 '\tab\tab - then this is the multi line repeater command\par
+\par
+\tab\tab otherwise command will be skipped and source line pass to the result \tab\tab\tab without changes\par
+\par
+\fs22\tab single line repeater\fs20\par
+\par
+\tab\tab pass parameter1 "  " parameter2 "  " ( duplicates parameter2 "  " ) command\par
+\par
+\tab\tab note that parameter 1 is passed with replacement decimal numbers by \par
+\tab detailed description of self3mod commands is currently unfinished.\par
+\par
+\par
+\fs28 ____________________________________________________________\par
+\b\par
+\fs32 HIDs\b0\fs28\par
+\fs20\par
+\par
+\tab\i hids\i0  is the special definition. each hid is the global variable that's have \tab assigned by\tab the special unique value. this unique value may be found as the index \tab in the global array \b _HID\b0 .\par
+\par
+\tab traditionally \i hids\i0  have upper cased name with the single uderscore character at \tab the end:\par
+\par
+\tab the hid's usage motivation is simple:\par
+\par
+\tab\tab example:\par
+\par
+\fs18\tab\tab\tab let's for example you want defines in an array - the subarray that will \tab\tab\tab\tab contain some list-type information (just for example). but if you're naming \tab\tab\tab index of the subarray someway like "LIST" - it's will be good chance that \tab\tab\tab such index will be conflicted with the other possible indexes of the \tab\tab\tab\tab original array. hid - is the solution for this\par
+\par
+\tab\tab\tab we're should define in such case hid named like \b LIST_\b0 . this mean that the \tab\tab\tab global var \b LIST_\b0  will be defined and special unique value should to be \tab\tab\tab\tab assigned to it\par
+\par
+\tab\tab\tab now we can define subarray using content of globvar \b LIST_\b0  as the index of an \tab\tab\tab subaray:\par
+\par
+\tab\tab\tab\tab A[ \b LIST_\b0  ]\par
+\fs20\par
+\tab please note that \i hids\i0  is the part of special environment that this library is not \tab includes. because of public version this library should operate without requiring \tab any external resources.\b\fs18\par
+\b0\fs20\par
+\par
+\fs28 ____________________________________________________________\par
+\b\par
+\fs32 PERFORMANCE\b0\fs28\par
+\fs20\par
+\par
+\tab the following is the arr v3 and v2 \b _reta\b0 ()'s performance information:\par
+\par
+\fs18\tab\tab\fs16 idx   pages\tab size\tab\tab v3\tab\tab v2\par
+\par
+64    6.25M\tab 400M\tab\tab 178 ms\tab\tab 177 ms\par
+127   3.14M\tab 390.55M\tab\tab 190 ms\tab\tab 397 ms\par
+160   2.5M\tab 400M\tab\tab 398 ms\tab\tab 395 ms\par
+4K    100K\tab 390.62M\tab\tab 370 ms\tab\tab 370 ms\par
+4.1K  100K\tab 400.39M\tab\tab 381 ms\tab\tab 599 ms\par
+5K\tab 5.5K\tab 26.86M\tab\tab 27 ms\tab\tab 42.24 ms\par
+\par
+10K   48K\tab 468.75M   \tab 460 ms\tab\tab 717 ms\par
+\par
+100K  4K\tab 390.62M\tab\tab 384 ms\tab\tab 619 ms\par
+\par
+1M\tab 256\tab 244.14M\tab\tab 483 ms\tab\tab 675 ms\par
+1M\tab 384\tab 366M\tab\tab 724 ms\tab\tab 998 ms\par
+\f1\lang1049 725\f0\lang1033 K\tab 512\tab 370M\tab\tab 625 ms\tab\tab 890 ms     \par
+\par
+15K   48K\tab 737M\tab\tab 464 ms\tab\tab -\par
+\par
+\tab 728M\tab 1M\tab 728M\tab\tab 695.2 ms\tab 741.8 ms\par
+\fs20\par
+\tab where:\par
+\par
+\fs18\tab idx\tab - number of indexes joined\par
+\tab page\tab - size of each array's element\par
+\tab size\tab - total amount of data ( idx * page )\par
+\tab v3\tab - _arr v3 timings (this release)\par
+\tab v2\tab - _arr v2 timings (previous release)\par
+\par
+\fs20    \tab test configuration:\par
+\par
+\tab\tab i5-2500K quad core 3.2GHz\par
+\tab\tab 16 GB RAM\par
+\tab\tab Windows 10(x64)\par
+\par
+\tab\tab GAWK 5.1.1\par
+\par
+\fs28 ____________________________________________________________\par
+\b\par
+\fs32 INFO\b0\fs28\par
+\fs20\par
+\par
+\tab the following chapter is just fyi\par
+\par
+\tab\b split\b0 /\b patsplit\b0  behaviour:\par
+\par
+\tab\tab the following is an examples of usage split/patsplit functions with the \tab\tab different data source variations.\par
+\par
+\tab\tab each of the following examples have the operation performed and the source \tab\tab data string provided for it.\par
+\par
+\tab\tab as the result of the performed operation - the dump of the provided arrays \tab\tab contents is shown:\par
+\par
+\fs18 split( a0b1c, A, /[0-9]/, B ) == 3'\par
+\par
+    A[ 1 ] = a  B[ 1 ] = 0\par
+     [ 2 ] = b   [ 2 ] = 1\par
+     [ 3 ] = c\par
+\par
+\par
+patsplit( a0b1c, A, /[0-9]/, B ) == 2'\par
+\par
+                B[ 0 ] = a\par
+    A[ 1 ] = 0   [ 1 ] = b\par
+     [ 2 ] = 1   [ 2 ] = c\par
+\par
+______________________________________________\par
+\par
+split( 0b1c, A, /[0-9]/, B ) == 3'\par
+\par
+    A[ 1 ] =    B[ 1 ] = 0\par
+     [ 2 ] = b   [ 2 ] = 1\par
+     [ 3 ] = c\par
+\par
+\par
+patsplit( 0b1c, A, /[0-9]/, B ) == 2'\par
+\par
+                B[ 0 ] =\par
+    A[ 1 ] = 0   [ 1 ] = b\par
+     [ 2 ] = 1   [ 2 ] = c\par
+\par
+______________________________________________\par
+\par
+split( 0b1, A, /[0-9]/, B ) == 3'\par
+\par
+    A[ 1 ] =    B[ 1 ] = 0\par
+     [ 2 ] = b   [ 2 ] = 1\par
+     [ 3 ] =\par
+\par
+\par
+patsplit( 0b1, A, /[0-9]/, B ) == 2'\par
+\par
+                B[ 0 ] =\par
+    A[ 1 ] = 0   [ 1 ] = b\par
+     [ 2 ] = 1   [ 2 ] =\par
+\par
+______________________________________________\par
+\par
+split( 0b, A, /[0-9]/, B ) == 2'\par
+\par
+    A[ 1 ] =    B[ 1 ] = 0\par
+     [ 2 ] = b\par
+\par
+\par
+patsplit( 0b, A, /[0-9]/, B ) == 1'\par
+\par
+                B[ 0 ] =\par
+    A[ 1 ] = 0   [ 1 ] = b\par
+\par
+______________________________________________\par
+\par
+split( b, A, /[0-9]/, B ) == 1'\par
+\par
+    A[ 1 ] = b  B\par
+\par
+\par
+patsplit( b, A, /[0-9]/, B ) == 0'\par
+\par
+       B[ 0 ] = b\par
+    A\par
+\par
+______________________________________________\par
+\par
+split( 0, A, /[0-9]/, B ) == 2'\par
+\par
+    A[ 1 ] =   B[ 1 ] = 0\par
+     [ 2 ] =\par
+\par
+\par
+patsplit( 0, A, /[0-9]/, B ) == 1'\par
+\par
+                B[ 0 ] =\par
+    A[ 1 ] = 0   [ 1 ] =\par
+\par
+______________________________________________\par
+\par
+split( , A, /[0-9]/, B ) == 0'\par
+\par
+    A \tab\tab   B\par
+\par
+\par
+patsplit( , A, /[0-9]/, B ) == 0'\par
+\par
+    A \tab\tab   B\par
+\fs20\par
+\par
+\fs28 ____________________________________________________________\par
+\b\par
+\fs32 ABOUT\b0\fs28\par
+\fs20\par
+\par
+\tab gawk expirience since 2010\par
+\par
+\tab\tab specialities:\par
+\par
+\tab\tab\tab - long gawk programs\par
+\par
+\tab\tab\tab - writing at the user level an independent gawk libraries for \tab\tab\tab\tab different needings\par
+\par
+\tab\tab\tab - data analysis\par
+\par
+\tab\tab\tab - as assistant for developing electronic devices\par
+\par
+\tab\tab\tab\tab - allows developed devices for accessing to file system\par
+\par
+\tab\tab - text processing: syntax, semantic \par
+\par
+\tab\tab\tab workaround interface with the complex regular expressions\par
+\par
+\tab\tab - avr dasm2asm\par
+\par
+\tab\tab\tab small gawk project that is allowing to convert source file that is \tab\tab\tab disasembler's output to the destination file that is a pure assembly \tab\tab\tab file\par
+\par
+\tab\tab - amount of special mini projects\par
+\par
+\par
+\tab programming language expirience except gawk:\par
+\par
+\tab\tab - assembler expirience since 1990\par
+\par
+\tab\tab\tab Z80, 6502, AVR, ADSP2181, x86 32/64, AVR\par
+\par
+\tab\tab - c-language\par
+\par
+\tab\tab\tab exploring gawk source code :)\par
+\par
+\tab\tab - python 3\par
+\par
+\tab\tab\tab beginner\par
+\par
+\par
+\tab other development/creative skills/interests:\par
+\par
+\tab\tab - proramming and electronic engineering expirience\par
+\par
+\tab\tab\tab digital/analog\par
+\par
+\tab\tab\tab high-voltage systems\par
+\par
+\tab\tab\tab infrared light\par
+\par
+\tab\tab\tab DSP\par
+\par
+\par
+\tab\tab - electronic music composer since 1999\par
+\par
+\tab\tab\tab Hardcore Psychedelic Trance\par
+\par
+\tab\tab\tab {{\field{\*\fldinst{HYPERLINK https://soundcloud.com/cosmogen-1 }}{\fldrslt{https://soundcloud.com/cosmogen-1\ul0\cf0}}}}\f0\fs20\par
+\par
+\par
+\tab\tab - fuel-air dynamic gas systems; detonation; cumulative jets\par
+\par
+\par
+\tab kind Regards\par
+\par
+\tab Denis Shirokov\par
+\par
+\par
+\tab powered by Digi 2022\par
+\par
+\par
+\par
+\par
+\par
+\fs16\par
+}
+ 
